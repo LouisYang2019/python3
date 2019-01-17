@@ -1,5 +1,6 @@
 #ex41 Learning to Speak Object-Oriented
 import random
+#import urllib
 from urllib.request import urlopen
 import sys
 
@@ -34,3 +35,34 @@ for word in urlopen(WORD_URL).readlines():
 def convert(snippet, phrase):
     class_names = [w.capitlize() for w in
         random.sample(WORDS, snippet.count('%%%'))]
+    other_names = random.sample(WORDS, snippet.count('***'))
+    results = []
+    param_names = []
+
+    for i in range(0, snippet.count('@@@')):
+            param_count = random.randint(1,3)
+            param_names.append(', ' .join(
+                random.sample(WORDS, param_count)))
+
+    for sentence in snippet, phrase:
+            result = sentence[:]
+
+            # fake class names
+            for word in class_names:
+                result = result.replace('%%%', word, 1)
+
+            # fake other names
+            for word in other_names:
+                result = result.replace('***', word, 1)
+
+            # fake parameter lists
+            for word in param_names:
+                result = result.replace('@@@', word, 1)
+
+            results.append(result)
+
+    return results
+
+# keep going until they hit CTRL-D
+try:
+    while True:
