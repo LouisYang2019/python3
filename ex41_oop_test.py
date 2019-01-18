@@ -66,3 +66,18 @@ def convert(snippet, phrase):
 # keep going until they hit CTRL-D
 try:
     while True:
+        snippets = list(PHRASES.keys())
+        random.shuffle(snippets)
+
+        for snippet in snippets:
+            phrase = PHRASES[snippet]
+            question, answer = convert(snippet, phrase)
+            if PHRASES_FIRST:
+                question, answer = answer, question
+
+            print(question)
+
+            input('> ')
+            print(f"ANSWER: {answer}\n\n")
+except EOFError:
+    print('\nBye')
