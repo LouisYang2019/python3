@@ -5,7 +5,7 @@ from textwrap import dedent
 
 class Scene(object):
     def enter(self):
-        print('This sence is not yet configured.')
+        print('This scene is not yet configured.')
         print('Subclass it and implement enter()')
         exit(1)
 
@@ -14,7 +14,7 @@ class Engine(object):
         self.scene_map = scene_map
 
     def play(self):
-        current_scene = self.sence_map.opening_scene()
+        current_scene = self.scene_map.opening_scene()
         last_scene = self.scene_map.next_scene('finished')
 
         while current_scene != last_scene:
@@ -32,7 +32,7 @@ class Death(Scene):
         'Such a luser.',
         "I have a small puppy that's better at this. ",
         "You're worse than your Dad's jokes."
-    ]
+            ]
 
     def enter(self):
         print(Death.quips[randint(0, len(self.quips)-1)])
@@ -97,40 +97,49 @@ class CentralCorridor(Scene):
 class LaserWeaponArmory(Scene):
     def enter(self):
         print(dedent("""
-        You do a dive roll into the Weapon Armory, crouch and scan
-        the room for more Gothons that might be hiding.
-        There's a keypad lock on the box and you need the code to
-        get the bomb out. If you get the code wrong 10 times then
-        the lock closes forever and you can't get the bomb. The
-        code is 3 digits.
-        """))
+            You do a dive roll into the Weapon Armory, crouch and scan
+            the room for more Gothons that might be hiding.
+            There's a keypad lock on the box and you need the code to
+            get the bomb out. If you get the code wrong 10 times then
+            the lock closes forever and you can't get the bomb. The
+            code is 3 digits.
+            """))
 
-    code = f'{randint(1,9)}{randint(1,9)}{randint(1,9)}'
-    guess = input('[keypad]> ')
-    guesses = 0
-
-    while guess != code and guesses <10:
-        print('BZZZZZZZEDDDD!')
-        guesses += 1
+        code = f'{randint(1,9)}{randint(1,9)}{randint(1,9)}'
         guess = input('[keypad]> ')
+        guesses = 0
 
-    if guess == code:
-        print (dedent("""
-        The container cliks open and the seal breaks, letting
-        gas out. You grab the neutron bomb and run as fast as
-        you can to the bridge where you must place it in the
-        right spot.
-        """))
-        return 'the_bridge'
+        while guess != code and guesses <10:
+            print('BZZZZZZZEDDDD!')
+            guesses += 1
+            guess = input('[keypad]> ')
 
-    else:
-        print(dedent("""
+        if guess == code:
+            print(dedent("""
+            The container cliks open and the seal breaks, letting
+            gas out. You grab the neutron bomb and run as fast as
+            you can to the bridge where you must place it in the
+            right spot.
+            """))
+            return 'the_bridge'
+
+        elif guess == 'cheat':
+            print(dedent("""
+            The container cliks open and the seal breaks, letting
+            gas out. You grab the neutron bomb and run as fast as
+            you can to the bridge where you must place it in the
+            right spot.
+            """))
+            return 'the_bridge'
+
+        else:
+            print(dedent("""
         The lock buzzes one last time and then you hear a
         ...
         You decide to sit there, and  finally the Gothons
         blow up the ship from their ship and you die.
         """))
-        return 'death'
+            return 'death'
 
 class TheBridge(Scene):
     def enter(self):
@@ -144,10 +153,83 @@ class TheBridge(Scene):
         action = input('> ')
 
         if action == 'throw the bomb':
-
-
-        pass
+            print(dedent("""
+            In a panic you throw the bomb at the group of Gottons
+            ...
+            ...
+            disarm the bomb. You die knowing they will probably
+            blow up when it goes off.
+            """))
+            return 'death'
+        elif action == 'slowly place the bomb':
+            print(dedent("""
+            You point your blaster at the bomb under
+            ...
+            ...
+            Gothons can't get out. Now that the bomb
+            you run to the escape pod to get off this
+            """))
+            return 'escape_pod'
+        else:
+            print('DOES NOT COMPUTER!')
+            return 'the_bridge'
 
 class EscapePod(Scene):
     def enter(self):
-        pass
+        print(dedent("""
+        You rush through the ship desperately trying
+        ...
+        ...
+        escape could be damaged but you don't have time
+        there's 5 pods, which one do you take?
+        """))
+
+        good_pod = randint(1,5)
+        guess = input('[pod #]> ')
+
+        if int(guess) != good_pod:
+            print(dedent("""
+            You jump into pod {guess} and hit the eject button.
+            ...
+            ...
+            implodes as the hull rutures, crushing your body
+            into jam jelly.
+            """))
+            return 'death'
+        else:
+            print(dedent("""
+            You jump into pod {guess} and hit the eject button.
+            ...
+            ...
+            bright star, taking out the Gotton ship at the same
+            time. You won!
+            """))
+            return 'finished'
+class Finished(Scene):
+
+    def enter(self):
+        print('You won! Good job.')
+        return 'finished'
+
+class Map(object):
+
+    scenes = {
+        'central_corridor': CentralCorridor(),
+        'laser_weapon_armory': LaserWeaponArmory(),
+        'the_bridge': TheBridge(),
+        'escape_pod':EscapePod(),
+        'death': Death(),
+        'finished': Finished(),
+        }
+    def __init__(self, start_scene):
+        self.start_scene = start_scene
+
+    def next_scene(self, scene_name):
+        val = Map.scenes.get(scene_name)
+        return val
+    def opening_scene(self):
+        return self.next_scene(self.start_scene)
+
+a_map = Map('central_corridor')
+a_game = Engine(a_map)
+a_game.play()
